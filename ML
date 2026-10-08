@@ -1,0 +1,170 @@
+Practical 1
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# --- Load dataset ---
+url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv"
+columns = [
+    'Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness',
+    'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age', 'Outcome'
+]
+data = pd.read_csv(url, header=None, names=columns)
+
+# --- Explore dataset ---
+print("First 5 rows:\n", data.head())
+print("\nInfo:\n")
+print(data.info())
+print("\nSummary Statistics:\n", data.describe())
+
+# --- Clean data: replace zeros with median ---
+cols_to_fix = ['Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI']
+for col in cols_to_fix:
+    data[col] = data[col].replace(0, np.nan)
+    data[col] = data[col].fillna(data[col].median())
+
+# --- Correlation heatmap ---
+plt.figure(figsize=(10, 8))
+sns.heatmap(data.corr(numeric_only=True), annot=True, cmap='coolwarm')
+plt.title("Correlation Matrix")
+plt.tight_layout()
+plt.show()
+
+# --- Outcome distribution ---
+plt.figure(figsize=(6, 4))
+sns.countplot(x='Outcome', data=data)
+plt.title("Outcome Distribution")
+plt.tight_layout()
+plt.show()
+
+# --- Prepare training data ---
+X = data.drop('Outcome', axis=1)
+y = data['Outcome']
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# --- Train model ---
+model = RandomForestClassifier(random_state=42)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+# --- Evaluate model ---
+accuracy = accuracy_score(y_test, y_pred)
+print(f"\nModel Accuracy: {accuracy * 100:.2f}%")
+print("\nConfusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+
+# --- Feature importance plot ---
+importances = model.feature_importances_
+feat_importances = pd.Series(importances, index=X.columns)
+plt.figure(figsize=(10, 6))
+feat_importances.sort_values().plot(kind='barh')
+plt.title("Feature Importance from Random Forest")
+plt.tight_layout()
+plt.show()
+
+# --- Predict for new sample patient ---
+new_patient_data = pd.DataFrame([{
+    'Pregnancies': 2,
+    'Glucose': 120,
+    'BloodPressure': 70,
+    'SkinThickness': 30,
+    'Insulin': 80,
+    'BMI': 25.6,
+    'DiabetesPedigreeFunction': 0.6,
+    'Age': 32
+}])
+
+prediction = model.predict(new_patient_data)
+print("\nPrediction for new patient:", "Likely diabetic." if prediction[0] == 1 else "Unlikely diabetic.")
+
+
+Practical 2
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# --- Load dataset ---
+url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv"
+columns = [
+    'Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness',
+    'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age', 'Outcome'
+]
+data = pd.read_csv(url, header=None, names=columns)
+
+# --- Explore dataset ---
+print("First 5 rows:\n", data.head())
+print("\nInfo:\n")
+print(data.info())
+print("\nSummary Statistics:\n", data.describe())
+
+# --- Clean data: replace zeros with median ---
+cols_to_fix = ['Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI']
+for col in cols_to_fix:
+    data[col] = data[col].replace(0, np.nan)
+    data[col] = data[col].fillna(data[col].median())
+
+# --- Correlation heatmap ---
+plt.figure(figsize=(10, 8))
+sns.heatmap(data.corr(numeric_only=True), annot=True, cmap='coolwarm')
+plt.title("Correlation Matrix")
+plt.tight_layout()
+plt.show()
+
+# --- Outcome distribution ---
+plt.figure(figsize=(6, 4))
+sns.countplot(x='Outcome', data=data)
+plt.title("Outcome Distribution")
+plt.tight_layout()
+plt.show()
+
+# --- Prepare training data ---
+X = data.drop('Outcome', axis=1)
+y = data['Outcome']
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# --- Train model ---
+model = RandomForestClassifier(random_state=42)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+# --- Evaluate model ---
+accuracy = accuracy_score(y_test, y_pred)
+print(f"\nModel Accuracy: {accuracy * 100:.2f}%")
+print("\nConfusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+
+# --- Feature importance plot ---
+importances = model.feature_importances_
+feat_importances = pd.Series(importances, index=X.columns)
+plt.figure(figsize=(10, 6))
+feat_importances.sort_values().plot(kind='barh')
+plt.title("Feature Importance from Random Forest")
+plt.tight_layout()
+plt.show()
+
+# --- Predict for new sample patient ---
+new_patient_data = pd.DataFrame([{
+    'Pregnancies': 2,
+    'Glucose': 120,
+    'BloodPressure': 70,
+    'SkinThickness': 30,
+    'Insulin': 80,
+    'BMI': 25.6,
+    'DiabetesPedigreeFunction': 0.6,
+    'Age': 32
+}])
+
+prediction = model.predict(new_patient_data)
+print("\nPrediction for new patient:", "Likely diabetic." if prediction[0] == 1 else "Unlikely diabetic.")
